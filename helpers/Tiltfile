@@ -24,3 +24,23 @@ def require_tool(tool):
 def expand_service_yaml(name):
   watch_file(name)
   return local('envsubst < {}'.format(name))
+
+# Don't hide mock secrets in Tilt log output.
+secret_settings (
+  disable_scrub = True
+)
+
+def make_env():
+  # Set some reasonable values for development; these will be injected into the service.yaml
+  # when it gets processed by expand_service_yaml().
+  # We use existing values if already set (i.e. in CI); otherwise set development defaults.
+  env_name_long = os.getenv("ENV_NAME_LONG", default = "local")
+  registry_slash = os.getenv("REGISTRY_SLASH", "")
+  version = os.getenv("VERSION", default = "local") # In CI, this is the git commit or tag
+
+  os.putenv("DD_TRACE_ENABLED", "false")
+  os.putenv("LOG_LEVEL", "DEBUG")
+  os.putenv("VERSION", version)
+  os.putenv("ENV_NAME_LONG", env_name_long)
+  os.putenv("REGISTRY_SLASH", registry_slash)
+  os.putenv("VERSION_SHORT", version[0:20])
