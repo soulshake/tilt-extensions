@@ -1,0 +1,22 @@
+def require_tool(tool):
+  # tool = shlex.quote(tool)
+  local_resource(
+    'ensure-deps',
+      cmd="""
+      if ! command -v {tool} >/dev/null 2>&1; then
+        echo >&2 "{tool} is required but was not found in PATH"
+        exit 1
+      fi
+      """.format(
+        tool=tool
+      ),
+      # `cmd_bat`, when present, is used instead of `cmd` on Windows.
+      cmd_bat=[
+          "powershell.exe",
+          "-Noninteractive",
+          "-Command",
+          '& {{if (!(Get-Command {tool} -ErrorAction SilentlyContinue)) {{ Write-Error "{tool} is required but was not found in PATH"; exit 1 }}}}'.format(
+              tool=tool
+          ),
+      ],
+  )
