@@ -20,3 +20,7 @@ def require_tool(tool):
           ),
       ],
   )
+
+def expand_service_yaml(name):
+  watch_file(name)
+  return local('envsubst < {}'.format(name))
